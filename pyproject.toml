@@ -1,0 +1,144 @@
+[tool.poetry]
+name = "fastapi_auth"
+version = "0.1.0"
+description = ""
+authors = ["Rewaster <bergdanramir@gmail.com>"]
+readme = "README.md"
+packages = [{include = "fastapi_auth"}]
+
+[tool.black]
+line-length = 120
+target-version = ['py310']
+include = '\.pyi?$|\.ipynbi?$'
+
+[tool.isort]
+profile = 'black'
+line_length = 120
+ensure_newline_before_comments = true
+force_single_line = true
+
+[tool.docformatter]
+recursive = true
+wrap-summaries = 0
+wrap-descriptions = 0
+blank = true
+black = true
+pre-summary-newline = true
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint.typecheck]
+generated-members = ['numpy.*', 'torch.*', 'onnx.*', 'onnxruntime.*']
+
+[tool.pylint.messages_control]
+disable = ['missing-module-docstring', 'c-extension-no-member', 'fixme', "logging-fstring-interpolation", "raise-missing-from", "no-member", "invalid-name"]
+
+[tool.pylint.BASIC]
+good-names = ['x', 'y', 'z']
+
+[tool.pylint.DESIGN]
+max-args=12
+max-locals=30
+max-statements=60
+max-attributes=20
+min-public-methods=0
+max-public-methods=20
+
+[tool.pylint.SIMILARITIES]
+# Minimum lines number of a similarity.
+min-similarity-lines=6
+# Ignore comments when computing similarities.
+ignore-comments="yes"
+# Ignore docstrings when computing similarities.
+ignore-docstrings="yes"
+# Ignore imports when computing similarities.
+ignore-imports="yes"
+# Ignore function signatures when computing similarities.
+ignore-signatures="no"
+
+[tool.pylint.MASTER]
+load-plugins="pylint.extensions.docparams"
+ignore-paths = '^alembic/.*$'
+
+[tool.pyright]
+reportMissingImports = false
+reportMissingTypeStubs = false
+reportWildcardImportFromLibrary = false
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]
+
+[tool.tbump]
+
+[tool.tbump.version]
+current = "0.2.3"
+
+regex = '''
+  (?P<major>\d+)
+  \.
+  (?P<minor>\d+)
+  \.
+  (?P<patch>\d+)
+  '''
+
+[tool.tbump.git]
+message_template = "Bump to {new_version}"
+tag_template = "v{new_version}"
+
+[[tool.tbump.file]]
+src = "./mtp_service/__init__.py"
+
+[[tool.tbump.file]]
+src = "./README.md"
+
+[[tool.tbump.file]]
+src = "./pyproject.toml"
+
+[[tool.tbump.file]]
+src = "./deploy/worker/.env"
+
+[[tool.tbump.file]]
+src = "./deploy/server/.env"
+
+
+[tool.yamlfix]
+line_length = 120
+explicit_start = false
+sequence_style = 'keep_style'
+whitelines = 1
+section_whitelines = 1
+
+[tool.poetry.dependencies]
+asyncpg = "^0.27.0"
+alembic = "^1.8.1"
+pyotp = "^2.7.0"
+python = ">=3.10, <4.0"
+uvicorn = {version = "^0.27.1", extras = ["standard"]}
+celery = {extras = ["redis"], version = "^5.3.6"}
+fastapi = {version = "^0.109.2", extras = ["all"]}
+passlib = {extras = ["bycrypt"], version = "^1.7.4"}
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+pydantic = {extras = ["email"], version = "^2.7.0"}
+python-dotenv = "^0.21.0"
+SQLAlchemy = "^1.4.44"
+typer = "^0.12.3"
+flower="^2.0.1"
+fernet = "^1.0.1"
+qrcode = "^7.3.1"
+yagmail = "^0.15.293"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^2.20.0"
+pylint = "^3.1.0"
+pytest = "^8.1.1"
+tbump = "^6.11.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
