@@ -1,0 +1,89 @@
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: dockerfiles/Dockerfile
+    image: fastapi_auth
+    container_name: fastapi_auth
+    restart: always
+    entrypoint: ./scripts/entrypoint.sh
+    environment:
+      - IMAGE_NAME=fastapi_auth
+      - BACKEND_CORS_ORIGINS=http://${FASTAPI_HOST}:${FASTAPI_PORT}
+    ports:
+      - ${FASTAPI_MAPPING_PORT}:$FASTAPI_PORT
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+      - celery_worker
+
+  db:
+    image: postgres
+    container_name: fastapi_auth-db
+    restart: always
+    volumes:
+      - ./data/pgdata:/var/lib/postgresql
+      - ./data/pgdata/postgres:/var/lib/postgresql/data
+    env_file:
+      - .env
+    ports:
+      - ${POSTGRES_MAPPING_PORT}:$POSTGRES_PORT
+    environment:
+      - SQLALCHEMY_DATABASE_URI=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@fastapi_auth-db:${POSTGRES_PORT}/${POSTGRES_DB}
+
+  redis:
+    image: redis:7
+    volumes:
+      - ./redis/config/redis.conf:/etc/redis/redis.conf
+      - ./redis:/data
+    env_file:
+      - .env
+    command: redis-server --protected-mode no --requirepass ${REDIS_PASSWORD}
+    ports:
+      - ${REDIS_MAPPING_PORT}:$REDIS_PORT
+
+  celery_worker:
+    container_name: fastapi_auth-celery
+    build:
+      context: ..
+      dockerfile: dockerfiles/Dockerfile
+    image: fastapi_auth_celery_worker
+    entrypoint: ./scripts/start_celery_worker.sh
+    environment:
+      - IMAGE_NAME=fastapi_auth-celery
+      - result_backend=redis://default:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}
+      - CELERY_BROKER_URL=redis://default:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}
+    env_file:
+      - .env
+    restart: always
+    depends_on:
+      - redis
+      - db
+
+  flower:
+    container_name: fastapi_auth-flower
+    build:
+      context: ..
+      dockerfile: dockerfiles/Dockerfile
+    image: fastapi_auth_celery_flower
+    entrypoint: ./scripts/start_celery_flower.sh
+    env_file:
+      - .env
+    volumes:
+      - ./dashboard_data:/etc/dashboard_db/
+    ports:
+      - ${FLOWER_MAPPING_PORT}:$FLOWER_PORT
+    environment:
+      - IMAGE_NAME=fastapi_auth-flower
+      - CELERY_BROKER_URL=redis://default:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}
+      - FLOWER_PORT=$FLOWER_PORT
+      - FLOWER_PERSISTENT=True
+      - FLOWER_STATE_SAVE_INTERVAL=10000
+      - FLOWER_DB=/etc/dashboard_db/task_database
+      - result_backend=redis://default:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}
+    depends_on:
+      - redis
+      - db
+      - celery_worker
