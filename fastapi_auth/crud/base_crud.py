@@ -14,6 +14,7 @@ from sqlalchemy import select
 from sqlalchemy import update
 from sqlalchemy.orm import Session
 
+from fastapi_auth.api import common_logger
 from fastapi_auth.db.base_class import Base
 
 # SqlAlchemy Model
@@ -54,10 +55,10 @@ class CrudBase(
         """Process the commit provided"""
         committed = False
         if not self.transaction:
-            print(f"{self} is NOT under transaction, committing..")
+            common_logger.debug(f"{self} is NOT under transaction, committing..")
             await db.commit()
             committed = True
-        print(f"{self} is under transaction, NOT committing..")
+        common_logger.debug(f"{self} is under transaction, NOT committing..")
         return committed
 
     async def get(self, db: Session, id: Any) -> Optional[ModelType]:  # pylint: disable = redefined-builtin

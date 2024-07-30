@@ -121,6 +121,7 @@ python = ">=3.10, <4.0"
 uvicorn = {version = "^0.27.1", extras = ["standard"]}
 celery = {extras = ["redis"], version = "^5.3.6"}
 fastapi = {version = "^0.109.2", extras = ["all"]}
+loguru = "^0.7.0"
 passlib = {extras = ["bycrypt"], version = "^1.7.4"}
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 pydantic = {extras = ["email"], version = "^2.7.0"}

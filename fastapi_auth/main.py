@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
+from fastapi_auth.api import common_logger
 from fastapi_auth.api.endpoints.router import router
 from fastapi_auth.core.config import settings
 from fastapi_auth.db.session import SessionLocal
@@ -24,7 +25,7 @@ async def app_startup():
     try:
         db = SessionLocal()
         await db.execute("SELECT 1")
-        print("Database is connected")
+        common_logger.debug("Database is connected")
     except Exception:
         raise RuntimeError("Problems reaching db")
     finally:
@@ -35,14 +36,14 @@ async def app_startup():
         celery.broker_connection().ensure_connection(max_retries=3)
     except Exception as ex:
         raise RuntimeError(f"Failed to connect to celery broker, {str(ex)}")
-    print("Celery broker is running")
+    common_logger.debug("Celery broker is running")
 
     # CHECK CELERY WORKER
     insp = celery.control.inspect()
     availability = insp.ping()
     if not availability:
         raise RuntimeError("Celery worker is not running")
-    print("Celery worker is running")
+    common_logger.debug("Celery worker is running")
 
 
 # Set all CORS enabled origins

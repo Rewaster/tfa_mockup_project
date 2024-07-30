@@ -1,5 +1,6 @@
 from typing import Generator
 
+from fastapi_auth.api import common_logger
 from fastapi_auth.db.session import SessionLocal
 
 
@@ -9,11 +10,11 @@ async def get_db() -> Generator:
         db = SessionLocal()
         yield db
         await db.commit()
-        print("committed in db...")
+        common_logger.debug("committed in db...")
     except Exception as ex:  # pylint:disable = broad-exception-caught
-        print(f"rolling db for exception {ex} ...")
+        common_logger.debug(f"rolling db for exception {ex} ...")
         await db.rollback()
     finally:
-        print("closing db...")
+        common_logger.debug("closing db...")
         await db.close()
-        print("..db closed!")
+        common_logger.debug("..db closed!")

@@ -8,6 +8,7 @@ from fastapi import status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
+from fastapi_auth.api import common_logger
 from fastapi_auth.api.deps.db import get_db
 from fastapi_auth.api.deps.users import get_authenticated_tfa_user
 from fastapi_auth.api.deps.users import get_authenticated_user
@@ -56,7 +57,7 @@ async def recover_tfa(
         matched_bkp_token = verify_backup_token(backup_tokens=backup_tokens, tfa_backup_token=tfa_backup_token)
 
         if matched_bkp_token:
-            print("..consuming backup token")
+            common_logger.debug("..consuming backup token")
             await backup_token_crud.remove(db=db, id=matched_bkp_token.id)
             return JwtTokenSchema(
                 access_token=security.create_jwt_access_token(user.id),

@@ -6,6 +6,7 @@ import pyotp
 import qrcode
 from fernet import Fernet
 
+from fastapi_auth.api import common_logger
 from fastapi_auth.core.config import settings
 from fastapi_auth.core.enums import DeviceTypeEnum
 from fastapi_auth.core.utils import send_mail_totp_token
@@ -138,7 +139,7 @@ def verify_backup_token(backup_tokens: list[BackupToken], tfa_backup_token: str)
     for bkp_token in backup_tokens:
         if bkp_token.token == tfa_backup_token:
             # consume backup token and return access jwt
-            print("Found backup token match..")
+            common_logger.debug("Found backup token match..")
             return bkp_token
 
     return None

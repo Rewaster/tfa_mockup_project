@@ -10,6 +10,8 @@ from pydantic import PostgresDsn
 from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
+from fastapi_auth.api import common_logger
+
 
 class BaseConfig(BaseSettings):
     """Configuration class containing base settings, common for all settings classes"""
@@ -124,11 +126,11 @@ def get_settings():
     }
 
     config_name = os.environ.get("FASTAPI_CONFIG", "development")
-    print(f"Running app in **{config_name}** mode")
+    common_logger.debug(f"Running app in **{config_name}** mode")
     config_cls = config_cls_dict[config_name]
     return config_cls()
 
 
-print(os.environ)
+common_logger.debug(os.environ)
 
 settings = get_settings()
