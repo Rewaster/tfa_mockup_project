@@ -107,7 +107,9 @@ celerybeat.pid
 # Environments
 .venv
 venv/
-deploy/
+deploy/dashboard_data
+deploy/data
+deploy/redis
 env.bak/
 venv.bak/
 
